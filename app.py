@@ -13,9 +13,11 @@ from whisper.utils import get_writer
 
 def video2mp3(video_file, output_ext="mp3"):
     filename, ext = os.path.splitext(video_file)
-    subprocess.call(["ffmpeg", "-y", "-i", video_file, f"{filename}.{output_ext}"], 
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.STDOUT)
+    subprocess.call(
+        ["ffmpeg", "-y", "-i", video_file, f"{filename}.{output_ext}"], 
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.STDOUT
+    )
     return f"{filename}.{output_ext}"
 
 def translate(input_video):
@@ -31,27 +33,12 @@ def translate(input_video):
     os.system(f"ffmpeg -y -i {input_video} -vf subtitles={subtitle} {output_video}")
     return output_video
 
-title = "Add Text/Caption to your YouTube Shorts - MultiLingual"
+block = gr.Interface(
+    fn=translate,
+    inputs=gr.Video(label="Input Video"),
+    outputs=gr.Video(label="Output Video"),
+    title="Add Text/Caption to your video - MultiLingual",
+    description="Add Text/Caption to your YouTube Shorts with Gradio and OpenAI's Whisper."
+)
 
-block = gr.Blocks()
-
-with block:
-    with gr.Group():
-        with gr.Box(): 
-            with gr.Row().style():
-                inp_video = gr.Video(
-                    label="Input Video",
-                    type="filepath",
-                    mirror_webcam = False
-                )
-                op_video = gr.Video()
-            btn = gr.Button("Generate Subtitle Video")
-        btn.click(translate, inputs=[inp_video], outputs=[op_video])
-        gr.HTML('''
-        <div class="footer">
-            <p>Model by <a href="https://github.com/openai/whisper" style="text-decoration: underline;" target="_blank">OpenAI</a> - Gradio App by <a href="https://twitter.com/1littlecoder" style="text-decoration: underline;" target="_blank">1littlecoder</a>
-            </p>
-        </div>
-        ''')
-
-block.launch(debug = True)
+block.launch()
